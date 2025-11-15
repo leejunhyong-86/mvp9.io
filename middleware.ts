@@ -25,6 +25,3 @@ export const config = {
     "/(api|trpc)(.*)",
   ],
 };
-
-// Edge Runtime 명시 (Clerk middleware는 Edge Runtime 전용)
-export const runtime = "edge";
