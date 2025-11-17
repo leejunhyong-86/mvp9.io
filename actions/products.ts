@@ -132,3 +132,115 @@ export async function getPopularProducts(): Promise<Product[]> {
   }
 }
 
+/**
+ * 필터 및 페이지네이션 옵션
+ */
+export interface ProductFilters {
+  page?: number;
+  category?: string;
+  priceRange?: "0-10000" | "10000-50000" | "50000+";
+  sortBy?: "latest" | "price-asc" | "price-desc";
+}
+
+/**
+ * 필터된 상품 조회 결과
+ */
+export interface ProductsResult {
+  products: Product[];
+  totalCount: number;
+  totalPages: number;
+}
+
+/**
+ * 페이지당 상품 개수
+ */
+const ITEMS_PER_PAGE = 12;
+
+/**
+ * 필터 및 페이지네이션을 적용한 상품 조회
+ * @param filters - 필터 옵션
+ * @returns 상품 목록, 총 개수, 총 페이지 수
+ */
+export async function getProductsWithFilters(
+  filters: ProductFilters = {}
+): Promise<ProductsResult> {
+  try {
+    const supabase = createPublicSupabaseClient();
+
+    const {
+      page = 1,
+      category,
+      priceRange,
+      sortBy = "latest",
+    } = filters;
+
+    console.group("getProductsWithFilters");
+    console.log("Filters:", filters);
+
+    // 쿼리 빌더 시작
+    let query = supabase
+      .from("products")
+      .select("*", { count: "exact" })
+      .eq("is_active", true);
+
+    // 카테고리 필터 적용
+    if (category && category !== "all") {
+      query = query.eq("category", category);
+      console.log("Category filter applied:", category);
+    }
+
+    // 가격 범위 필터 적용
+    if (priceRange && priceRange !== "all") {
+      if (priceRange === "0-10000") {
+        query = query.gte("price", 0).lte("price", 10000);
+        console.log("Price range: 0-10000");
+      } else if (priceRange === "10000-50000") {
+        query = query.gte("price", 10000).lte("price", 50000);
+        console.log("Price range: 10000-50000");
+      } else if (priceRange === "50000+") {
+        query = query.gte("price", 50000);
+        console.log("Price range: 50000+");
+      }
+    }
+
+    // 정렬 적용
+    if (sortBy === "latest") {
+      query = query.order("created_at", { ascending: false });
+    } else if (sortBy === "price-asc") {
+      query = query.order("price", { ascending: true });
+    } else if (sortBy === "price-desc") {
+      query = query.order("price", { ascending: false });
+    }
+    console.log("Sort applied:", sortBy);
+
+    // 페이지네이션 적용
+    const from = (page - 1) * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+    query = query.range(from, to);
+    console.log(`Pagination: page ${page}, range ${from}-${to}`);
+
+    // 쿼리 실행
+    const { data, error, count } = await query;
+
+    if (error) {
+      console.error("Error fetching products with filters:", error);
+      throw new Error(`상품 조회 실패: ${error.message}`);
+    }
+
+    const totalCount = count || 0;
+    const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+    console.log(`Results: ${data?.length || 0} products, ${totalCount} total, ${totalPages} pages`);
+    console.groupEnd();
+
+    return {
+      products: (data as Product[]) || [],
+      totalCount,
+      totalPages,
+    };
+  } catch (error) {
+    console.error("Error in getProductsWithFilters:", error);
+    throw error;
+  }
+}
+

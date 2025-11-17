@@ -2,6 +2,7 @@ import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { ShoppingBag } from "lucide-react";
 
 const Navbar = () => {
   return (
@@ -10,6 +11,12 @@ const Navbar = () => {
         SaaS Template
       </Link>
       <div className="flex gap-4 items-center">
+        <Link href="/products">
+          <Button variant="outline" className="gap-2">
+            <ShoppingBag className="h-4 w-4" />
+            상품 목록
+          </Button>
+        </Link>
         <SignedOut>
           <SignInButton mode="modal">
             <Button>로그인</Button>

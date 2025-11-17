@@ -2,6 +2,37 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-01-17: 상품 목록 페이지 구현 ✅
+- **`app/products/page.tsx`**: 상품 목록 페이지
+  - URL 쿼리 파라미터 기반 서버 사이드 페이지네이션
+  - 카테고리, 가격, 정렬 필터 적용
+  - 총 상품 수 표시
+  
+- **`actions/products.ts`**: Server Actions 추가
+  - `getProductsWithFilters()`: 필터 및 페이지네이션 조회
+  - 페이지당 12개 상품 표시
+  - Supabase 쿼리 빌더 활용
+  
+- **`components/products-filter.tsx`**: 필터 컴포넌트
+  - 카테고리 필터 (8개)
+  - 가격대 필터 (4개 프리셋)
+  - 정렬 옵션 (Select 드롭다운)
+  - URL 동기화
+  
+- **`components/products-grid.tsx`**: 상품 그리드 컴포넌트
+  - 반응형 그리드 (1-4열)
+  - 빈 상태 처리
+  
+- **`components/pagination.tsx`**: 페이지네이션 컴포넌트
+  - 첫/마지막 페이지, 이전/다음 버튼
+  - 페이지 번호 버튼 (±2 범위)
+  
+- **`constants/products.ts`**: 상품 관련 상수
+  - 카테고리, 가격 범위, 정렬 옵션 정의
+  
+- **`components/navbar.tsx`**: 네비게이션 바 개선
+  - "상품 목록" 버튼 추가 (우측 상단)
+
 ### 2025-01-17: 인기 상품 섹션 구현 ✅
 - **`actions/products.ts`**: Server Actions 추가
   - `getPopularProducts()`: 인기 상품 조회 (최근 생성 상품 8개)
@@ -65,7 +96,7 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
 
 - [x] 기본 레이아웃
   - [x] `app/layout.tsx` RootLayout
-  - [x] `components/Navbar.tsx` 네비게이션 바
+  - [x] `components/Navbar.tsx` 네비게이션 바 (상품 목록 버튼 포함)
   - [x] `app/page.tsx` 홈페이지 (상품 목록 및 필터링 완성)
   - [ ] `app/not-found.tsx` 404 페이지
   - [ ] Footer 컴포넌트
@@ -79,17 +110,21 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
     - [ ] 신상품 섹션 (선택)
     - [ ] 히어로 배너 (선택)
 
-- [ ] 상품 목록 페이지
-  - [ ] `app/products/page.tsx` 생성
-    - [ ] 상품 목록 조회 (Supabase)
-    - [ ] 그리드 레이아웃
-    - [ ] 페이지네이션
-    - [ ] 카테고리 필터링 UI
-    - [ ] 가격 필터링
-    - [ ] 정렬 기능 (최신순, 가격순)
+- [x] 상품 목록 페이지
+  - [x] `app/products/page.tsx` 생성
+    - [x] 상품 목록 조회 (Supabase)
+    - [x] 그리드 레이아웃
+    - [x] 페이지네이션
+    - [x] 카테고리 필터링 UI
+    - [x] 가격 필터링
+    - [x] 정렬 기능 (최신순, 가격순)
   - [x] `components/product-card.tsx` 상품 카드 컴포넌트
   - [x] `components/products-section.tsx` 상품 섹션 컴포넌트 (필터 포함)
   - [x] `components/popular-products-section.tsx` 인기 상품 섹션 컴포넌트
+  - [x] `components/products-grid.tsx` 상품 그리드 컴포넌트
+  - [x] `components/products-filter.tsx` 필터 컴포넌트
+  - [x] `components/pagination.tsx` 페이지네이션 컴포넌트
+  - [x] `constants/products.ts` 상품 관련 상수
 
 - [ ] 상품 상세 페이지
   - [ ] `app/products/[id]/page.tsx` 생성
@@ -106,6 +141,7 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
   - [x] `actions/products.ts` 생성
     - [x] 상품 목록 조회 (getProducts)
     - [x] 인기 상품 조회 (getPopularProducts)
+    - [x] 필터 및 페이지네이션 조회 (getProductsWithFilters)
     - [ ] 상품 상세 조회
     - [x] 카테고리별 조회 (getProductsByCategory)
 
