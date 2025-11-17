@@ -25,6 +25,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -45,6 +46,7 @@ import {
 export function ProductsFilter() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   // 현재 필터 상태 가져오기
   const currentCategory = (searchParams.get("category") ||
@@ -74,7 +76,10 @@ export function ProductsFilter() {
     // 필터 변경 시 페이지를 1로 리셋
     params.delete("page");
 
-    router.push(`?${params.toString()}`);
+    // useTransition으로 래핑하여 로딩 상태 관리
+    startTransition(() => {
+      router.push(`?${params.toString()}`);
+    });
   };
 
   /**
@@ -99,7 +104,17 @@ export function ProductsFilter() {
   };
 
   return (
-    <div className="space-y-6 rounded-lg border bg-card p-6">
+    <div className="space-y-6 rounded-lg border bg-card p-6 relative">
+      {/* 로딩 오버레이 */}
+      {isPending && (
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            로딩 중...
+          </div>
+        </div>
+      )}
+
       {/* 카테고리 필터 */}
       <div>
         <h3 className="mb-3 text-sm font-semibold">카테고리</h3>
@@ -110,6 +125,7 @@ export function ProductsFilter() {
               variant={currentCategory === key ? "default" : "outline"}
               size="sm"
               onClick={() => handleCategoryChange(key as CategoryType)}
+              disabled={isPending}
             >
               {label}
             </Button>
@@ -127,6 +143,7 @@ export function ProductsFilter() {
               variant={currentPriceRange === key ? "default" : "outline"}
               size="sm"
               onClick={() => handlePriceRangeChange(key as PriceRangeType)}
+              disabled={isPending}
             >
               {label}
             </Button>
@@ -137,7 +154,11 @@ export function ProductsFilter() {
       {/* 정렬 옵션 */}
       <div>
         <h3 className="mb-3 text-sm font-semibold">정렬</h3>
-        <Select value={currentSort} onValueChange={handleSortChange}>
+        <Select 
+          value={currentSort} 
+          onValueChange={handleSortChange}
+          disabled={isPending}
+        >
           <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="정렬 방식 선택" />
           </SelectTrigger>

@@ -24,6 +24,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
@@ -40,6 +41,7 @@ interface PaginationProps {
 export function Pagination({ currentPage, totalPages }: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
   /**
    * 페이지 변경 함수
@@ -48,7 +50,11 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
     console.log("Pagination: Changing to page", page);
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
-    router.push(`?${params.toString()}`);
+    
+    // useTransition으로 래핑하여 로딩 상태 관리
+    startTransition(() => {
+      router.push(`?${params.toString()}`);
+    });
   };
 
   /**
@@ -80,7 +86,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
         variant="outline"
         size="icon"
         onClick={() => handlePageChange(1)}
-        disabled={currentPage === 1}
+        disabled={currentPage === 1 || isPending}
         aria-label="첫 페이지"
       >
         <ChevronsLeft className="h-4 w-4" />
@@ -91,7 +97,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
         variant="outline"
         size="icon"
         onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+        disabled={currentPage === 1 || isPending}
         aria-label="이전 페이지"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -104,6 +110,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
           variant={page === currentPage ? "default" : "outline"}
           size="icon"
           onClick={() => handlePageChange(page)}
+          disabled={isPending}
           aria-label={`${page}페이지`}
           aria-current={page === currentPage ? "page" : undefined}
         >
@@ -116,7 +123,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
         variant="outline"
         size="icon"
         onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={currentPage === totalPages || isPending}
         aria-label="다음 페이지"
       >
         <ChevronRight className="h-4 w-4" />
@@ -127,7 +134,7 @@ export function Pagination({ currentPage, totalPages }: PaginationProps) {
         variant="outline"
         size="icon"
         onClick={() => handlePageChange(totalPages)}
-        disabled={currentPage === totalPages}
+        disabled={currentPage === totalPages || isPending}
         aria-label="마지막 페이지"
       >
         <ChevronsRight className="h-4 w-4" />
