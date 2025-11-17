@@ -8,6 +8,11 @@
   - 카테고리, 가격, 정렬 필터 적용
   - 총 상품 수 표시
   
+- **`app/products/loading.tsx`**: 로딩 스켈레톤 UI
+  - 페이지 헤더, 필터, 상품 그리드, 페이지네이션 스켈레톤
+  - Next.js 15 loading.tsx 규칙 활용
+  - Suspense boundary 자동 적용
+  
 - **`actions/products.ts`**: Server Actions 추가
   - `getProductsWithFilters()`: 필터 및 페이지네이션 조회
   - 페이지당 12개 상품 표시
@@ -99,6 +104,7 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
   - [x] `components/Navbar.tsx` 네비게이션 바 (상품 목록 버튼 포함)
   - [x] `app/page.tsx` 홈페이지 (상품 목록 및 필터링 완성)
   - [ ] `app/not-found.tsx` 404 페이지
+  
   - [ ] Footer 컴포넌트
 
 ## Phase 2: 상품 기능 (1주)
@@ -118,6 +124,7 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
     - [x] 카테고리 필터링 UI
     - [x] 가격 필터링
     - [x] 정렬 기능 (최신순, 가격순)
+  - [x] `app/products/loading.tsx` 로딩 스켈레톤 UI
   - [x] `components/product-card.tsx` 상품 카드 컴포넌트
   - [x] `components/products-section.tsx` 상품 섹션 컴포넌트 (필터 포함)
   - [x] `components/popular-products-section.tsx` 인기 상품 섹션 컴포넌트
