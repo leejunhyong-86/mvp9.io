@@ -1,5 +1,44 @@
 # 쇼핑몰 MVP 개발 TODO
 
+## 📌 최근 완료 사항
+
+### 2025-01-17: 인기 상품 섹션 구현 ✅
+- **`actions/products.ts`**: Server Actions 추가
+  - `getPopularProducts()`: 인기 상품 조회 (최근 생성 상품 8개)
+  
+- **`components/popular-products-section.tsx`**: 인기 상품 섹션 컴포넌트
+  - 제목 및 설명 포함
+  - 반응형 그리드 레이아웃 (2-4열)
+  - ProductCard 재사용
+  
+- **`app/page.tsx`**: 홈페이지 레이아웃 개선
+  - 인기 상품 섹션 (상단)
+  - 구분선
+  - 전체 상품 섹션 (하단)
+  - 병렬 데이터 조회 (Promise.all)
+
+### 2025-01-17: 홈페이지 상품 기능 구현 ✅
+- **`actions/products.ts`**: Server Actions 구현
+  - `getProducts()`: 전체 활성 상품 조회
+  - `getProductsByCategory()`: 카테고리별 상품 조회
+  - 공개 클라이언트 사용 (인증 불필요)
+  
+- **`components/product-card.tsx`**: 상품 카드 컴포넌트
+  - 상품 이미지 플레이스홀더
+  - 상품명, 가격, 카테고리, 재고 표시
+  - 가격 포맷팅 (한국 원화)
+  - 상품 상세 페이지 링크 (`/products/[id]`)
+  
+- **`components/products-section.tsx`**: 상품 섹션 컴포넌트
+  - 카테고리 필터 버튼 (전체, 전자제품, 의류, 도서, 식품, 스포츠, 뷰티, 생활/가정)
+  - 클라이언트 사이드 필터링 (useState + useMemo)
+  - 반응형 그리드 레이아웃 (1-4열)
+
+### 🔴 다음 단계: 데이터베이스 마이그레이션 실행
+Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mall.schema.sql` 실행 필요
+
+---
+
 ## Phase 1: 기본 인프라 (1주)
 
 - [ ] 프로젝트 초기 설정
@@ -10,11 +49,12 @@
   - [x] Tailwind CSS 설정
   - [x] shadcn/ui 설정
 
-- [ ] Supabase 설정
+- [x] Supabase 설정
   - [x] Supabase 프로젝트 생성
   - [x] 데이터베이스 스키마 작성 (products, cart_items, orders, order_items)
   - [x] 샘플 데이터 추가
-  - [ ] Supabase 클라이언트 유틸리티 확인
+  - [x] Supabase 클라이언트 유틸리티 확인
+  - ⚠️ **중요**: Supabase Dashboard에서 `supabase/migrations/update_shopping_mall.schema.sql` 실행 필요
 
 - [ ] Clerk 인증 연동
   - [x] Clerk 프로젝트 생성
@@ -23,20 +63,20 @@
   - [x] 미들웨어 설정
   - [x] 사용자 동기화 로직
 
-- [ ] 기본 레이아웃
+- [x] 기본 레이아웃
   - [x] `app/layout.tsx` RootLayout
   - [x] `components/Navbar.tsx` 네비게이션 바
-  - [ ] `app/page.tsx` 홈페이지 (기본 구조만)
+  - [x] `app/page.tsx` 홈페이지 (상품 목록 및 필터링 완성)
   - [ ] `app/not-found.tsx` 404 페이지
   - [ ] Footer 컴포넌트
 
 ## Phase 2: 상품 기능 (1주)
 
-- [ ] 홈페이지
-  - [ ] `app/page.tsx` 완성
-    - [ ] 추천 상품 섹션
-    - [ ] 신상품 섹션
-    - [ ] 카테고리별 상품 미리보기
+- [x] 홈페이지
+  - [x] `app/page.tsx` 완성
+    - [x] 전체 상품 섹션 (카테고리 필터링 포함)
+    - [x] 인기 상품 섹션
+    - [ ] 신상품 섹션 (선택)
     - [ ] 히어로 배너 (선택)
 
 - [ ] 상품 목록 페이지
@@ -47,8 +87,9 @@
     - [ ] 카테고리 필터링 UI
     - [ ] 가격 필터링
     - [ ] 정렬 기능 (최신순, 가격순)
-  - [ ] `components/product-card.tsx` 상품 카드 컴포넌트
-  - [ ] `components/product-filters.tsx` 필터 컴포넌트
+  - [x] `components/product-card.tsx` 상품 카드 컴포넌트
+  - [x] `components/products-section.tsx` 상품 섹션 컴포넌트 (필터 포함)
+  - [x] `components/popular-products-section.tsx` 인기 상품 섹션 컴포넌트
 
 - [ ] 상품 상세 페이지
   - [ ] `app/products/[id]/page.tsx` 생성
@@ -61,11 +102,12 @@
     - [ ] 장바구니 추가 버튼
     - [ ] 바로 구매 버튼 (선택)
 
-- [ ] Server Actions
-  - [ ] `actions/products.ts` 생성
-    - [ ] 상품 목록 조회
+- [x] Server Actions
+  - [x] `actions/products.ts` 생성
+    - [x] 상품 목록 조회 (getProducts)
+    - [x] 인기 상품 조회 (getPopularProducts)
     - [ ] 상품 상세 조회
-    - [ ] 카테고리별 조회
+    - [x] 카테고리별 조회 (getProductsByCategory)
 
 ## Phase 3: 장바구니 & 주문 (1주)
 
