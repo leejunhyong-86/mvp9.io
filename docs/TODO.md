@@ -2,6 +2,31 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-01-18: 전체 페이지 스켈레톤 로딩 UI 추가 ✅
+- **`components/skeletons/`**: 재사용 가능한 스켈레톤 컴포넌트 생성
+  - `ProductCardSkeleton`: 상품 카드 스켈레톤
+  - `SectionHeaderSkeleton`: 섹션 헤더 스켈레톤
+  - `ProductsGridSkeleton`: 상품 그리드 스켈레톤 (개수 조절 가능)
+  - `FilterSkeleton`: 필터 섹션 스켈레톤
+  - `PaginationSkeleton`: 페이지네이션 스켈레톤
+  
+- **`app/loading.tsx`**: 홈페이지 로딩 UI
+  - 인기 상품 섹션 스켈레톤
+  - 전체 상품 섹션 스켈레톤
+  - 카테고리 필터 버튼 스켈레톤
+  
+- **`app/products/loading.tsx`**: 상품 목록 페이지 로딩 UI (리팩토링)
+  - 재사용 컴포넌트로 전환하여 코드 간소화
+  
+- **`app/auth-test/loading.tsx`**: 인증 테스트 페이지 로딩 UI
+- **`app/storage-test/loading.tsx`**: 스토리지 테스트 페이지 로딩 UI
+- **`components/loading-template.tsx`**: 범용 로딩 템플릿
+  - 다른 페이지에서 재사용 가능
+
+- **버그 수정**: `actions/products.ts` TypeScript 빌드 에러 수정
+  - `ProductFilters` 인터페이스의 `priceRange` 타입에 `"all"` 추가
+  - Vercel 배포 실패 원인 해결
+
 ### 2025-01-17: 상품 목록 페이지 구현 ✅
 - **`app/products/page.tsx`**: 상품 목록 페이지
   - URL 쿼리 파라미터 기반 서버 사이드 페이지네이션
@@ -245,18 +270,18 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
   - [ ] `app/sitemap.ts` 생성
   - [ ] `app/manifest.ts` 생성 (PWA - 선택)
 
-- [ ] Vercel 배포
-  - [ ] Vercel 프로젝트 생성
-  - [ ] 환경 변수 설정
+- [x] Vercel 배포
+  - [x] Vercel 프로젝트 생성
+  - [x] 환경 변수 설정
   - [ ] 도메인 연결 (선택)
-  - [ ] 배포 및 동작 확인
+  - [x] 배포 및 동작 확인
 
 ## 추가 개선 사항 (MVP 이후)
 
 - [ ] UI/UX 개선
-  - [ ] 로딩 상태 개선
+  - [x] 로딩 상태 개선
   - [ ] 에러 처리 UI
-  - [ ] 스켈레톤 로더
+  - [x] 스켈레톤 로더
   - [ ] 토스트 알림
 
 - [ ] 성능 최적화
