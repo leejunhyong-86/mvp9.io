@@ -138,7 +138,7 @@ export async function getPopularProducts(): Promise<Product[]> {
 export interface ProductFilters {
   page?: number;
   category?: string;
-  priceRange?: "0-10000" | "10000-50000" | "50000+";
+  priceRange?: "all" | "0-10000" | "10000-50000" | "50000+";
   sortBy?: "latest" | "price-asc" | "price-desc";
 }
 
