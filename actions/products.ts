@@ -244,3 +244,45 @@ export async function getProductsWithFilters(
   }
 }
 
+/**
+ * ID로 단일 상품 조회
+ * @param id - 상품 ID
+ * @returns 상품 객체 또는 null (상품이 없을 경우)
+ */
+export async function getProductById(
+  id: string
+): Promise<Product | null> {
+  try {
+    const supabase = createPublicSupabaseClient();
+
+    console.group("getProductById");
+    console.log("Product ID:", id);
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .eq("is_active", true)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        // 상품이 존재하지 않음
+        console.log("Product not found");
+        console.groupEnd();
+        return null;
+      }
+      throw error;
+    }
+
+    console.log("Product found:", data?.name);
+    console.groupEnd();
+
+    return data as Product;
+  } catch (error) {
+    console.error("Error in getProductById:", error);
+    console.groupEnd();
+    throw error;
+  }
+}
+

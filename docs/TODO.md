@@ -2,6 +2,41 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-01-18: 상품 상세 페이지 완전 구현 ✅
+- **`components/product-image-gallery.tsx`**: 이미지 갤러리 컴포넌트
+  - 대형 메인 이미지 영역 (플레이스홀더)
+  - 하단 썸네일 갤러리 (4개, 수평 스크롤)
+  - 클릭 시 메인 이미지 변경 인터랙션
+  - Client Component (useState로 선택된 이미지 관리)
+  
+- **`components/add-to-cart-section.tsx`**: 장바구니 추가 UI 컴포넌트
+  - 수량 선택 컨트롤 (-, 입력 필드, +)
+  - 수량 범위 검증 (1 ~ 재고 수량)
+  - 총 금액 계산 표시 (수량 × 가격)
+  - "장바구니 담기" 버튼
+  - 데스크톱: 우측 sticky 고정 (lg:sticky lg:top-24)
+  - 로그인 상태 확인 (Clerk useUser)
+  - 비로그인 시 로그인 페이지로 리디렉션
+  - 재고 부족 시 버튼 비활성화 + 안내
+  - 성공/실패 메시지 표시
+  
+- **`actions/cart.ts`**: 장바구니 추가 Server Action
+  - Clerk 인증 사용 (createClerkSupabaseClient)
+  - 재고 확인
+  - 중복 상품 처리 (이미 있으면 수량 증가)
+  - 에러 처리 및 로깅
+  
+- **`app/products/[id]/page.tsx`**: 상품 상세 페이지 완성
+  - 2열 그리드 레이아웃 (데스크톱: 이미지 60% | 정보 40%)
+  - 왼쪽: 이미지 갤러리 컴포넌트
+  - 오른쪽: 상품 정보 + 장바구니 UI (sticky 고정)
+  - 반응형 레이아웃 (모바일: 세로 스택)
+  
+- **`app/products/[id]/loading.tsx`**: 로딩 UI 업데이트
+  - 이미지 갤러리 스켈레톤 (메인 + 썸네일)
+  - 장바구니 UI 스켈레톤 (수량 선택, 총 금액, 버튼)
+  - 2열 레이아웃 유지
+
 ### 2025-01-18: 전체 페이지 스켈레톤 로딩 UI 추가 ✅
 - **`components/skeletons/`**: 재사용 가능한 스켈레톤 컴포넌트 생성
   - `ProductCardSkeleton`: 상품 카드 스켈레톤
@@ -159,22 +194,51 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
   - [x] `constants/products.ts` 상품 관련 상수
 
 - [ ] 상품 상세 페이지
-  - [ ] `app/products/[id]/page.tsx` 생성
-    - [ ] 상품 정보 조회 (Supabase)
-    - [ ] 상품 이미지 (임시 이미지 사용)
-    - [ ] 상품 설명
-    - [ ] 가격 표시
-    - [ ] 재고 표시
-    - [ ] 수량 선택 UI
-    - [ ] 장바구니 추가 버튼
-    - [ ] 바로 구매 버튼 (선택)
+  - [x] `app/products/[id]/page.tsx` 생성 (상단 섹션만)
+    - [x] 상품 정보 조회 (getProductById Server Action)
+    - [x] 404 처리 (상품 없을 경우)
+    - [x] 상품명, 가격, 재고 상태 표시
+    - [ ] 동적 메타데이터 생성 (SEO)
+    
+  - [x] 레이아웃 구현
+    - [x] 데스크톱 2단 레이아웃 (이미지 60% | 정보 40%)
+    - [x] 모바일 세로 스택 레이아웃
+    - [x] 반응형 브레이크포인트 (lg:1024px)
+    
+  - [x] 이미지 갤러리 컴포넌트 (`components/product-image-gallery.tsx`)
+    - [x] 대형 메인 이미지 영역 (플레이스홀더)
+    - [x] 썸네일 갤러리 (3-4개, 수평 스크롤)
+    - [x] 클릭 시 메인 이미지 변경 인터랙션
+    
+  - [ ] 상품 정보 표시 (`components/product-detail-info.tsx`)
+    - [x] 중단: 카테고리 뱃지, 상품 설명
+    - [x] 하단: 등록일, 수정일 (작은 텍스트)
+    
+  - [x] 장바구니 UI (`components/add-to-cart-section.tsx`)
+    - [x] 수량 선택 컨트롤 (-, 입력 필드, +)
+    - [x] 수량 범위 검증 (1 ~ 재고 수량)
+    - [x] 총 금액 계산 표시 (수량 × 가격)
+    - [x] "장바구니 담기" 버튼
+    - [x] 데스크톱: 우측 sticky 고정
+    - [ ] 모바일: 하단 플로팅 버튼 (추후 구현)
+    
+  - [x] 장바구니 추가 기능
+    - [x] 로그인 상태 확인 (Clerk)
+    - [x] 비로그인 시 로그인 페이지로 리디렉션
+    - [x] 재고 부족 시 버튼 비활성화 + 안내
+    - [x] Server Action으로 장바구니 추가 (`actions/cart.ts`)
+    - [x] 성공 시 메시지 표시
+    
+  - [x] 로딩 상태
+    - [x] `app/products/[id]/loading.tsx` 스켈레톤 UI
+    - [x] 상품명, 가격, 재고 영역 스켈레톤
 
 - [x] Server Actions
   - [x] `actions/products.ts` 생성
     - [x] 상품 목록 조회 (getProducts)
     - [x] 인기 상품 조회 (getPopularProducts)
     - [x] 필터 및 페이지네이션 조회 (getProductsWithFilters)
-    - [ ] 상품 상세 조회
+    - [x] 상품 상세 조회 (getProductById)
     - [x] 카테고리별 조회 (getProductsByCategory)
 
 ## Phase 3: 장바구니 & 주문 (1주)
@@ -188,7 +252,7 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
     - [ ] 주문하기 버튼
   - [ ] `components/cart-item.tsx` 장바구니 아이템 컴포넌트
   - [ ] `actions/cart.ts` Server Actions
-    - [ ] 장바구니 추가
+    - [x] 장바구니 추가
     - [ ] 장바구니 조회
     - [ ] 장바구니 수량 업데이트
     - [ ] 장바구니 삭제
