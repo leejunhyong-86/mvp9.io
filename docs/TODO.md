@@ -2,6 +2,77 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-01-19: 장바구니 기능 완전 구현 ✅
+- **`actions/cart.ts`**: 장바구니 Server Actions 확장
+  - `getCartItems()`: 장바구니 전체 조회 (상품 정보 조인)
+  - `getCartCount()`: 장바구니 아이템 총 개수
+  - `updateCartItemQuantity()`: 수량 업데이트 (재고 검증)
+  - `removeCartItem()`: 개별 삭제
+  - `removeCartItems()`: 일괄 삭제
+  - `clearCart()`: 전체 비우기
+
+- **`hooks/use-cart-count.ts`**: 장바구니 개수 조회 Custom Hook
+  - React Query 기반 실시간 조회
+  - 1분마다 자동 리프레시
+  - 윈도우 포커스 시 리프레시
+
+- **`components/navbar.tsx`**: Navbar 장바구니 아이콘 추가
+  - 장바구니 아이콘 (ShoppingCart)
+  - 개수 뱃지 표시 (0개일 때 숨김, 99+ 표시)
+  - 클릭 시 `/cart`로 이동
+
+- **`components/add-to-cart-dialog.tsx`**: 장바구니 담기 Dialog
+  - 성공 메시지 표시
+  - 추가된 상품 정보 미리보기
+  - 장바구니 총 개수 표시
+  - "계속 쇼핑하기" / "장바구니로 이동" 버튼
+
+- **`components/add-to-cart-section.tsx`**: 장바구니 담기 UI 업데이트
+  - Dialog 연동
+  - 장바구니 개수 실시간 업데이트
+  - 에러 메시지만 inline 표시
+
+- **`components/cart-item.tsx`**: 장바구니 아이템 컴포넌트
+  - 체크박스 (선택 삭제용)
+  - 상품 이미지 플레이스홀더
+  - 상품 정보 (이름, 카테고리, 가격, 재고)
+  - 수량 조절 (debounce 500ms)
+  - 소계 계산
+  - 삭제 버튼
+
+- **`components/cart-summary.tsx`**: 주문 요약 섹션
+  - 총 상품 금액
+  - 배송비 계산 (5만원 이상 무료, 미만 3,000원)
+  - 무료 배송까지 남은 금액 안내
+  - 최종 결제 금액
+  - 주문하기 버튼
+
+- **`app/cart/page.tsx`**: 장바구니 페이지
+  - 2열 레이아웃 (데스크톱: 아이템 목록 | 주문 요약)
+  - 전체 선택/해제 체크박스 (indeterminate 상태 지원)
+  - 선택 삭제 기능
+  - 빈 장바구니 상태 처리
+  - 로그인 리디렉션
+
+- **`app/cart/loading.tsx`**: 장바구니 로딩 UI
+  - 장바구니 페이지 스켈레톤
+
+- **`components/skeletons/cart-item-skeleton.tsx`**: 장바구니 아이템 스켈레톤
+
+- **`constants/shipping.ts`**: 배송비 관련 상수
+  - 무료 배송 기준 금액: 50,000원
+  - 배송비: 3,000원
+  - 배송비 계산 유틸리티 함수
+
+- **`components/providers/query-provider.tsx`**: React Query Provider
+  - QueryClient 설정
+  - 기본 옵션 설정 (staleTime: 1분)
+
+- **`app/layout.tsx`**: QueryProvider 추가
+  - React Query 전역 설정
+
+- **패키지 설치**: `@tanstack/react-query` 추가
+
 ### 2025-01-18: 상품 상세 페이지 완전 구현 ✅
 - **`components/product-image-gallery.tsx`**: 이미지 갤러리 컴포넌트
   - 대형 메인 이미지 영역 (플레이스홀더)
@@ -243,20 +314,23 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
 
 ## Phase 3: 장바구니 & 주문 (1주)
 
-- [ ] 장바구니 기능
-  - [ ] `app/cart/page.tsx` 장바구니 페이지
-    - [ ] 장바구니 목록 조회
-    - [ ] 상품 수량 변경
-    - [ ] 상품 삭제
-    - [ ] 총 금액 계산
-    - [ ] 주문하기 버튼
-  - [ ] `components/cart-item.tsx` 장바구니 아이템 컴포넌트
-  - [ ] `actions/cart.ts` Server Actions
+- [x] 장바구니 기능
+  - [x] `app/cart/page.tsx` 장바구니 페이지
+    - [x] 장바구니 목록 조회
+    - [x] 상품 수량 변경
+    - [x] 상품 삭제
+    - [x] 총 금액 계산
+    - [x] 주문하기 버튼
+  - [x] `components/cart-item.tsx` 장바구니 아이템 컴포넌트
+  - [x] `actions/cart.ts` Server Actions
     - [x] 장바구니 추가
-    - [ ] 장바구니 조회
-    - [ ] 장바구니 수량 업데이트
-    - [ ] 장바구니 삭제
-  - [ ] Navbar에 장바구니 아이콘 & 개수 표시
+    - [x] 장바구니 조회
+    - [x] 장바구니 수량 업데이트
+    - [x] 장바구니 삭제
+  - [x] Navbar에 장바구니 아이콘 & 개수 표시
+  - [x] `components/add-to-cart-dialog.tsx` 장바구니 담기 Dialog
+  - [x] `components/cart-summary.tsx` 주문 요약 섹션
+  - [x] `app/cart/loading.tsx` 장바구니 로딩 UI
 
 - [ ] 주문 프로세스
   - [ ] `app/checkout/page.tsx` 주문 페이지

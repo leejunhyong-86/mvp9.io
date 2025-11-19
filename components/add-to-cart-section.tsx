@@ -35,9 +35,12 @@ import { Input } from "@/components/ui/input";
 import { addToCart } from "@/actions/cart";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AddToCartDialog } from "@/components/add-to-cart-dialog";
+import { useCartCount } from "@/hooks/use-cart-count";
 
 interface AddToCartSectionProps {
   productId: string;
+  productName: string;
   price: number;
   stockQuantity: number;
   className?: string;
@@ -55,16 +58,19 @@ function formatPrice(price: number): string {
 
 export function AddToCartSection({
   productId,
+  productName,
   price,
   stockQuantity,
   className,
 }: AddToCartSectionProps) {
   const { isSignedIn, user } = useUser();
   const router = useRouter();
+  const { count, refetch: refetchCartCount } = useCartCount();
 
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   // 재고 상태
   const isInStock = stockQuantity > 0;
@@ -123,7 +129,10 @@ export function AddToCartSection({
       const result = await addToCart(productId, quantity);
 
       if (result.success) {
-        setMessage("장바구니에 추가되었습니다!");
+        // 장바구니 개수 리프레시
+        await refetchCartCount();
+        // Dialog 표시
+        setDialogOpen(true);
         // 성공 후 수량 초기화 (선택적)
         // setQuantity(1);
       } else {
@@ -205,16 +214,9 @@ export function AddToCartSection({
         {isLoading ? "처리 중..." : "장바구니 담기"}
       </Button>
 
-      {/* 메시지 표시 */}
+      {/* 에러 메시지 표시 (성공 메시지는 Dialog로 대체) */}
       {message && (
-        <div
-          className={cn(
-            "rounded-md p-3 text-sm",
-            message.includes("추가되었습니다")
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-          )}
-        >
+        <div className="rounded-md bg-red-100 p-3 text-sm text-red-800 dark:bg-red-900 dark:text-red-200">
           {message}
         </div>
       )}
@@ -225,6 +227,16 @@ export function AddToCartSection({
           현재 재고가 없습니다.
         </p>
       )}
+
+      {/* 장바구니 추가 Dialog */}
+      <AddToCartDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        productName={productName}
+        quantity={quantity}
+        price={price}
+        totalCartCount={count}
+      />
     </div>
   );
 }

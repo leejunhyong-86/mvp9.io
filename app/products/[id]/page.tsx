@@ -193,6 +193,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <div className="mt-6 rounded-lg border bg-card p-6">
               <AddToCartSection
                 productId={product.id}
+                productName={product.name}
                 price={product.price}
                 stockQuantity={product.stock_quantity}
               />
