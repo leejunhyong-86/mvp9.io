@@ -46,7 +46,7 @@ export default function CartPage() {
   // 로그인 확인
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
-      router.push("/sign-in");
+      router.push("/sign-in?returnUrl=/cart");
     }
   }, [isLoaded, isSignedIn, router]);
 

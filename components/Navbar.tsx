@@ -1,6 +1,6 @@
 "use client";
 
-import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/nextjs";
+import { SignedOut, SignInButton, SignedIn, UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,14 @@ import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { count } = useCartCount();
+  const { isSignedIn } = useUser();
   const router = useRouter();
 
   const handleCartClick = () => {
+    if (!isSignedIn) {
+      router.push("/sign-in?returnUrl=/cart");
+      return;
+    }
     router.push("/cart");
   };
 

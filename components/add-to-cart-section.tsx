@@ -112,7 +112,8 @@ export function AddToCartSection({
   const handleAddToCart = async () => {
     // 로그인 확인
     if (!isSignedIn) {
-      router.push("/sign-in");
+      const currentPath = window.location.pathname;
+      router.push(`/sign-in?returnUrl=${encodeURIComponent(currentPath)}`);
       return;
     }
 

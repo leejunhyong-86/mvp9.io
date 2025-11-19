@@ -2,6 +2,33 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-01-19: 비회원 인증 플로우 개선 ✅
+- **`app/sign-in/[[...sign-in]]/page.tsx`**: 전용 로그인 페이지 생성
+  - Clerk `<SignIn />` 컴포넌트 사용
+  - 중앙 정렬 레이아웃 with gradient 배경
+  - returnUrl 쿼리 파라미터 지원
+  - HTTP 431 오류 해결 (컴포넌트 설정 단순화)
+
+- **`app/sign-up/[[...sign-up]]/page.tsx`**: 전용 회원가입 페이지 생성
+  - Clerk `<SignUp />` 컴포넌트 사용
+  - 로그인 페이지와 일관된 레이아웃
+
+- **`components/navbar.tsx`**: 비로그인 사용자 처리 개선
+  - 장바구니 아이콘 클릭 시 로그인 상태 확인
+  - 비로그인 시 `/sign-in?returnUrl=/cart`로 리디렉션
+
+- **`components/add-to-cart-section.tsx`**: returnUrl 지원 추가
+  - 비로그인 시 현재 상품 페이지 경로 포함하여 로그인 페이지로 이동
+  - 로그인 후 원래 페이지로 복귀
+
+- **`app/cart/page.tsx`**: returnUrl 지원 추가
+  - 비로그인 접근 시 `/sign-in?returnUrl=/cart`로 리디렉션
+
+**개선된 사용자 경험:**
+- ✅ 비로그인 상태에서 장바구니 관련 액션 시 404 대신 로그인 페이지로 안내
+- ✅ 로그인 후 원래 하려던 페이지로 자동 복귀
+- ✅ 깔끔한 Clerk UI로 통일된 인증 경험
+
 ### 2025-01-19: 장바구니 기능 완전 구현 ✅
 - **`actions/cart.ts`**: 장바구니 Server Actions 확장
   - `getCartItems()`: 장바구니 전체 조회 (상품 정보 조인)
@@ -223,12 +250,13 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
   - [x] Supabase 클라이언트 유틸리티 확인
   - ⚠️ **중요**: Supabase Dashboard에서 `supabase/migrations/update_shopping_mall.schema.sql` 실행 필요
 
-- [ ] Clerk 인증 연동
+- [x] Clerk 인증 연동
   - [x] Clerk 프로젝트 생성
   - [x] Clerk Provider 설정
-  - [x] 로그인/회원가입 페이지
+  - [x] 로그인/회원가입 전용 페이지 (`app/sign-in`, `app/sign-up`)
   - [x] 미들웨어 설정
   - [x] 사용자 동기화 로직
+  - [x] returnUrl 기반 리디렉션 지원
 
 - [x] 기본 레이아웃
   - [x] `app/layout.tsx` RootLayout
