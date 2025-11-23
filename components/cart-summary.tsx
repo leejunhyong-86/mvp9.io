@@ -23,7 +23,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Truck } from "lucide-react";
 import {
-  FREE_SHIPPING_THRESHOLD,
   calculateShippingFee,
   getRemainingForFreeShipping,
 } from "@/constants/shipping";
@@ -104,8 +103,9 @@ export function CartSummary({
       return;
     }
 
-    // 주문 페이지로 이동
-    router.push("/checkout");
+    // 선택된 아이템 ID를 쿼리 파라미터로 전달하여 주문 페이지로 이동
+    const itemsParam = selectedItemIds.join(",");
+    router.push(`/checkout?items=${itemsParam}`);
   };
 
   return (

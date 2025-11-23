@@ -2,6 +2,46 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-01-23: Phase 3 주문 프로세스 구현 ✅
+- **`types/order.ts`**: 주문 관련 타입 정의
+  - ShippingAddress, OrderFormData, Order, OrderItem
+  
+- **`constants/validation.ts`**: 배송 정보 검증 규칙
+  - 전화번호, 우편번호 정규식
+  - 이름, 주소, 메모 길이 제한
+  - 에러 메시지 정의
+  
+- **`actions/orders.ts`**: 주문 Server Actions
+  - `createOrder()`: 주문 생성 (재고 검증, 금액 계산, 상품 스냅샷)
+  - `getOrder()`: 주문 상세 조회
+  
+- **`components/checkout-form.tsx`**: 배송 정보 입력 폼
+  - react-hook-form + zod 스키마 검증
+  - 6개 필드 (이름, 전화번호, 우편번호, 주소, 상세주소, 메모)
+  
+- **`components/checkout-summary.tsx`**: 주문 요약 컴포넌트
+  - 선택된 상품 목록 표시
+  - 금액 계산 (상품 금액 + 배송비)
+  - 결제하기 버튼
+  
+- **`app/checkout/page.tsx`**: 주문 페이지
+  - URL 쿼리 파라미터로 선택된 아이템 전달
+  - 2열 그리드 레이아웃 (배송 정보 폼 | 주문 요약)
+  - 로그인 리디렉션 처리
+  
+- **`app/checkout/loading.tsx`**: 주문 페이지 로딩 UI
+  
+- **`components/cart-summary.tsx`**: 장바구니 요약 업데이트
+  - 선택된 아이템 ID를 쿼리 파라미터로 전달
+
+**주요 기능:**
+- ✅ 장바구니에서 선택한 아이템만 주문 가능
+- ✅ 배송 정보 입력 폼 (react-hook-form + zod)
+- ✅ 주문 생성 시 상품명/가격 스냅샷 저장
+- ✅ 재고 확인 및 검증
+- ✅ 배송비 자동 계산 (5만원 이상 무료)
+- ✅ 주문 상태 'pending'으로 저장
+
 ### 2025-01-19: 비회원 인증 플로우 개선 ✅
 - **`app/sign-in/[[...sign-in]]/page.tsx`**: 전용 로그인 페이지 생성
   - Clerk `<SignIn />` 컴포넌트 사용
@@ -360,17 +400,27 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
   - [x] `components/cart-summary.tsx` 주문 요약 섹션
   - [x] `app/cart/loading.tsx` 장바구니 로딩 UI
 
-- [ ] 주문 프로세스
-  - [ ] `app/checkout/page.tsx` 주문 페이지
-    - [ ] 주문 상품 목록 표시
-    - [ ] 배송 정보 입력 폼
-    - [ ] 주문 메모 입력
-    - [ ] 총 금액 표시
-    - [ ] 결제하기 버튼
-  - [ ] `actions/orders.ts` Server Actions
-    - [ ] 주문 생성
-    - [ ] 주문 조회
-    - [ ] 주문 상태 업데이트
+- [x] 주문 프로세스
+  - [x] `types/order.ts` 타입 정의
+  - [x] `constants/validation.ts` 검증 규칙
+  - [x] `app/checkout/page.tsx` 주문 페이지
+    - [x] 주문 상품 목록 표시
+    - [x] 배송 정보 입력 폼 (수신자 이름, 전화번호, 우편번호, 주소, 상세주소)
+    - [x] 주문 메모 입력
+    - [x] 총 금액 표시
+    - [x] 결제하기 버튼
+  - [x] `app/checkout/loading.tsx` 주문 페이지 로딩 UI
+  - [x] `components/checkout-form.tsx` 배송 정보 입력 폼
+  - [x] `components/checkout-summary.tsx` 주문 요약 컴포넌트
+  - [x] `actions/orders.ts` Server Actions
+    - [x] 주문 생성 (createOrder)
+    - [x] 주문 조회 (getOrder)
+    - [ ] 주문 상태 업데이트 (Phase 4에서 구현)
+  - [x] 장바구니에서 선택한 아이템 쿼리 파라미터로 전달
+  - [x] react-hook-form + zod 스키마 검증
+  - [x] 주문 시점 상품명/가격 스냅샷 저장
+  - [x] 통합 테스트 가이드 작성 (`docs/CHECKOUT_TEST.md`)
+  - [x] 구현 문서 작성 (`docs/CHECKOUT_IMPLEMENTATION.md`)
 
 ## Phase 4: 결제 통합 (1주)
 
