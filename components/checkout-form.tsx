@@ -23,10 +23,11 @@
 
 "use client";
 
-import { forwardRef, useImperativeHandle } from "react";
+import { forwardRef, useImperativeHandle, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Search } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -37,6 +38,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import type { OrderFormData } from "@/types/order";
 import {
   PHONE_REGEX,
@@ -50,6 +52,32 @@ import {
   ORDER_NOTE_MAX_LENGTH,
   VALIDATION_MESSAGES,
 } from "@/constants/validation";
+
+/**
+ * Daum 우편번호 서비스 데이터 타입
+ */
+interface DaumPostcodeData {
+  zonecode: string; // 우편번호
+  address: string; // 기본 주소 (도로명 우선)
+  addressType: "R" | "J"; // R: 도로명, J: 지번
+  roadAddress: string; // 도로명 주소
+  jibunAddress: string; // 지번 주소
+}
+
+/**
+ * Window 객체에 daum 타입 추가
+ */
+declare global {
+  interface Window {
+    daum?: {
+      Postcode: new (config: {
+        oncomplete: (data: DaumPostcodeData) => void;
+      }) => {
+        open: () => void;
+      };
+    };
+  }
+}
 
 /**
  * 배송 정보 폼 스키마
@@ -116,6 +144,47 @@ export const CheckoutForm = forwardRef<CheckoutFormRef, CheckoutFormProps>(
       },
     });
 
+    // Daum 우편번호 서비스 스크립트 동적 로드
+    useEffect(() => {
+      const script = document.createElement("script");
+      script.src =
+        "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+      script.async = true;
+      document.body.appendChild(script);
+
+      return () => {
+        // 컴포넌트 언마운트 시 스크립트 제거
+        document.body.removeChild(script);
+      };
+    }, []);
+
+    // 주소 검색 팝업 열기
+    const handleAddressSearch = () => {
+      if (!window.daum?.Postcode) {
+        console.error("Daum Postcode script not loaded");
+        return;
+      }
+
+      new window.daum.Postcode({
+        oncomplete: (data: DaumPostcodeData) => {
+          // 우편번호 설정
+          form.setValue("postalCode", data.zonecode);
+
+          // 기본 주소 설정 (도로명 주소 우선, 없으면 지번 주소)
+          const baseAddress = data.roadAddress || data.jibunAddress;
+          form.setValue("address", baseAddress);
+
+          // 상세 주소 입력 필드로 포커스 이동
+          const addressDetailInput = document.querySelector(
+            'input[name="addressDetail"]'
+          ) as HTMLInputElement;
+          if (addressDetailInput) {
+            addressDetailInput.focus();
+          }
+        },
+      }).open();
+    };
+
     // 외부에서 제출할 수 있도록 ref 노출
     useImperativeHandle(ref, () => ({
       submit: () => {
@@ -169,7 +238,7 @@ export const CheckoutForm = forwardRef<CheckoutFormRef, CheckoutFormProps>(
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="010-1234-5678"
+                      placeholder="010-1234-5678 또는 01012345678"
                       disabled={isLoading}
                       {...field}
                     />
@@ -188,13 +257,26 @@ export const CheckoutForm = forwardRef<CheckoutFormRef, CheckoutFormProps>(
                   <FormLabel>
                     우편번호 <span className="text-red-500">*</span>
                   </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="12345"
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input
+                        placeholder="12345"
+                        disabled={isLoading}
+                        readOnly
+                        {...field}
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddressSearch}
                       disabled={isLoading}
-                      {...field}
-                    />
-                  </FormControl>
+                      className="shrink-0"
+                    >
+                      <Search />
+                      주소 검색
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -211,8 +293,9 @@ export const CheckoutForm = forwardRef<CheckoutFormRef, CheckoutFormProps>(
                   </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="서울특별시 강남구 테헤란로 123"
+                      placeholder="주소 검색 버튼을 클릭해주세요"
                       disabled={isLoading}
+                      readOnly
                       {...field}
                     />
                   </FormControl>
