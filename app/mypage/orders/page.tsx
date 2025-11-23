@@ -120,7 +120,6 @@ export default async function OrdersPage(props: OrdersPageProps) {
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            baseUrl="/mypage/orders"
           />
         </div>
       )}
