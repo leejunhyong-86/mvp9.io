@@ -424,25 +424,37 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
 
 ## Phase 4: 결제 통합 (1주)
 
-- [ ] Toss Payments MCP 연동
-  - [ ] `.cursor/mcp.json` Toss Payments MCP 설정
-  - [ ] `lib/toss-payments.ts` 유틸리티 생성
-  - [ ] 테스트 API 키 설정 (.env)
+- [x] Toss Payments v1 API 연동
+  - [x] `types/payment.ts` 타입 정의 생성
+  - [x] `constants/payment.ts` 상수 정의 생성
+  - [x] `lib/toss-payments.ts` 유틸리티 생성
+  - [x] 테스트 API 키 설정 (.env.local)
 
-- [ ] 결제 프로세스
-  - [ ] `app/checkout/page.tsx` 결제 버튼 연동
-  - [ ] `app/payment/success/page.tsx` 결제 성공 페이지
-  - [ ] `app/payment/fail/page.tsx` 결제 실패 페이지
-  - [ ] `actions/payments.ts` Server Actions
-    - [ ] 결제 요청
-    - [ ] 결제 승인
-    - [ ] 결제 실패 처리
+- [x] 결제 프로세스
+  - [x] `app/checkout/page.tsx` Toss Payments SDK 연동
+    - [x] SDK 스크립트 로드
+    - [x] 주문 생성 (status='pending')
+    - [x] 결제창 열기 (requestPayment)
+  - [x] `app/payment/success/page.tsx` 결제 성공 페이지
+    - [x] 결제 승인 API 호출
+    - [x] 주문 상세 정보 표시
+    - [x] 배송 정보 표시
+    - [x] 영수증 링크 제공
+  - [x] `app/payment/success/loading.tsx` 결제 성공 로딩 UI
+  - [x] `app/payment/fail/page.tsx` 결제 실패 페이지
+    - [x] 실패 사유 표시
+    - [x] 재결제 버튼
+    - [x] 장바구니로 돌아가기 버튼
+  - [x] `actions/payments.ts` Server Actions
+    - [x] 결제 승인 (approvePayment)
+    - [x] Toss Payments API 호출
+    - [x] 금액 검증
 
-- [ ] 결제 완료 후 처리
-  - [ ] 주문 상태 업데이트
-  - [ ] 장바구니 비우기
-  - [ ] 재고 차감 (선택)
-  - [ ] 주문 완료 페이지로 리디렉션
+- [x] 결제 완료 후 처리
+  - [x] 주문 상태 업데이트 (pending → confirmed)
+  - [x] 장바구니 비우기 (clearCart)
+  - [x] `actions/orders.ts` getOrderWithItems 함수 추가
+  - [ ] 재고 차감 (Phase 6에서 구현)
 
 ## Phase 5: 마이페이지 (0.5주)
 

@@ -319,3 +319,95 @@ export async function getOrder(orderId: string): Promise<GetOrderResult> {
   }
 }
 
+/**
+ * 주문 상세 정보 조회 (주문 + 주문 아이템)
+ * 
+ * 결제 성공 페이지에서 주문 상세 정보를 표시하기 위해 사용합니다.
+ * 
+ * @param orderId - 주문 ID
+ * @returns 주문 정보 및 주문 아이템 목록
+ */
+export interface GetOrderWithItemsResult {
+  success: boolean;
+  message?: string;
+  order?: Order & {
+    items: OrderItem[];
+  };
+}
+
+export async function getOrderWithItems(
+  orderId: string
+): Promise<GetOrderWithItemsResult> {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        message: "로그인이 필요합니다.",
+      };
+    }
+
+    console.group("getOrderWithItems");
+    console.log("Order ID:", orderId);
+    console.log("User ID:", userId);
+
+    const supabase = createClerkSupabaseClient();
+
+    // 주문 정보 조회
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", orderId)
+      .eq("clerk_id", userId)
+      .single();
+
+    if (orderError || !order) {
+      console.error("Order not found:", orderError);
+      console.groupEnd();
+      return {
+        success: false,
+        message: "주문 정보를 찾을 수 없습니다.",
+      };
+    }
+
+    // 주문 아이템 조회
+    const { data: orderItems, error: itemsError } = await supabase
+      .from("order_items")
+      .select("*")
+      .eq("order_id", orderId)
+      .order("created_at", { ascending: true });
+
+    if (itemsError) {
+      console.error("Failed to fetch order items:", itemsError);
+      console.groupEnd();
+      return {
+        success: false,
+        message: "주문 상품 정보를 불러오는 데 실패했습니다.",
+      };
+    }
+
+    console.log("Order fetched successfully:", {
+      orderId: order.id,
+      status: order.status,
+      itemCount: orderItems?.length || 0,
+    });
+    console.groupEnd();
+
+    return {
+      success: true,
+      order: {
+        ...order,
+        items: orderItems || [],
+      } as Order & { items: OrderItem[] },
+    };
+  } catch (error) {
+    console.error("Error in getOrderWithItems:", error);
+    console.groupEnd();
+    return {
+      success: false,
+      message: "예기치 않은 오류가 발생했습니다.",
+    };
+  }
+}
+

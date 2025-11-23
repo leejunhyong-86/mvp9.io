@@ -9,7 +9,13 @@
  * 2. 장바구니 아이템 조회 및 검증
  * 3. 배송 정보 입력 폼 표시
  * 4. 주문 요약 표시
- * 5. 주문 생성 및 결제 페이지로 이동
+ * 5. Toss Payments SDK 통합 및 결제창 열기
+ * 
+ * 결제 플로우:
+ * 1. 주문 생성 (status='pending')
+ * 2. Toss Payments 결제창 열기
+ * 3. 결제 성공 시 `/payment/success`로 리디렉션
+ * 4. 결제 실패 시 `/payment/fail`로 리디렉션
  *
  * @dependencies
  * - @/components/checkout-form: CheckoutForm
@@ -19,6 +25,7 @@
  * - @/types/order: OrderFormData, ShippingAddress
  * - @clerk/nextjs: useUser
  * - next/navigation: useRouter, useSearchParams
+ * - Toss Payments SDK: v1 (CDN)
  */
 
 "use client";
@@ -35,9 +42,26 @@ import type { OrderFormData, ShippingAddress } from "@/types/order";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { calculateShippingFee } from "@/constants/shipping";
+
+// Toss Payments SDK 타입 정의
+declare global {
+  interface Window {
+    TossPayments?: (clientKey: string) => {
+      requestPayment: (method: string, params: {
+        amount: number;
+        orderId: string;
+        orderName: string;
+        customerName?: string;
+        successUrl: string;
+        failUrl: string;
+      }) => Promise<void>;
+    };
+  }
+}
 
 export default function CheckoutPage() {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
   const formRef = useRef<CheckoutFormRef>(null);
@@ -46,6 +70,30 @@ export default function CheckoutPage() {
   const [selectedItemIds, setSelectedItemIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isTossPaymentsLoaded, setIsTossPaymentsLoaded] = useState(false);
+
+  // Toss Payments SDK 로드
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://js.tosspayments.com/v1/payment";
+    script.async = true;
+    script.onload = () => {
+      console.log("Toss Payments SDK loaded");
+      setIsTossPaymentsLoaded(true);
+    };
+    script.onerror = () => {
+      console.error("Failed to load Toss Payments SDK");
+      alert("결제 시스템 로드에 실패했습니다. 페이지를 새로고침해주세요.");
+    };
+    document.body.appendChild(script);
+
+    return () => {
+      // Cleanup
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
+    };
+  }, []);
 
   // 로그인 확인
   useEffect(() => {
@@ -100,10 +148,15 @@ export default function CheckoutPage() {
     fetchCartItems();
   }, [isSignedIn, selectedItemIds]);
 
-  // 폼 제출 핸들러
+  // 폼 제출 핸들러 (주문 생성 + 결제창 열기)
   const handleFormSubmit = async (data: OrderFormData) => {
     if (items.length === 0) {
       alert("주문할 상품이 없습니다.");
+      return;
+    }
+
+    if (!isTossPaymentsLoaded || !window.TossPayments) {
+      alert("결제 시스템이 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.");
       return;
     }
 
@@ -124,7 +177,7 @@ export default function CheckoutPage() {
 
       console.log("Creating order...");
 
-      // 주문 생성
+      // 주문 생성 (status='pending')
       const result = await createOrder(
         selectedItemIds,
         shippingAddress,
@@ -132,21 +185,72 @@ export default function CheckoutPage() {
       );
 
       console.log("Order creation result:", result);
-      console.groupEnd();
 
-      if (result.success && result.orderId) {
+      if (!result.success || !result.orderId) {
         alert(result.message);
-        // 결제 페이지로 이동 (Phase 4에서 구현 예정)
-        // 현재는 홈으로 이동
-        router.push(`/?orderId=${result.orderId}`);
-      } else {
-        alert(result.message);
+        console.groupEnd();
+        setIsSubmitting(false);
+        return;
       }
-    } catch (error) {
-      console.error("Error submitting order:", error);
+
+      // 총 금액 계산
+      const totalProductPrice = items.reduce((sum, item) => {
+        const product = item.product as any;
+        return sum + (product?.price || 0) * item.quantity;
+      }, 0);
+      const shippingFee = calculateShippingFee(totalProductPrice);
+      const totalAmount = totalProductPrice + shippingFee;
+
+      console.log("Opening Toss Payments window...", {
+        orderId: result.orderId,
+        totalAmount,
+      });
+
+      // Toss Payments SDK 초기화
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+      if (!clientKey) {
+        console.error("Missing NEXT_PUBLIC_TOSS_CLIENT_KEY");
+        alert("결제 설정이 올바르지 않습니다.");
+        console.groupEnd();
+        setIsSubmitting(false);
+        return;
+      }
+
+      const tossPayments = window.TossPayments(clientKey);
+
+      // 주문명 생성 (첫 번째 상품명 + 나머지 개수)
+      const firstProduct = items[0]?.product as any;
+      const orderName =
+        items.length > 1
+          ? `${firstProduct?.name || "상품"} 외 ${items.length - 1}건`
+          : firstProduct?.name || "상품";
+
+      console.log("Requesting payment:", {
+        amount: totalAmount,
+        orderId: result.orderId,
+        orderName,
+        customerName: data.recipientName,
+      });
+
+      // 결제창 열기
+      await tossPayments.requestPayment("카드", {
+        amount: totalAmount,
+        orderId: result.orderId,
+        orderName,
+        customerName: data.recipientName,
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
+      });
+
       console.groupEnd();
-      alert("주문 생성 중 오류가 발생했습니다.");
-    } finally {
+    } catch (error) {
+      console.error("Error in handleFormSubmit:", error);
+      console.groupEnd();
+      alert(
+        error instanceof Error
+          ? error.message
+          : "주문 처리 중 오류가 발생했습니다."
+      );
       setIsSubmitting(false);
     }
   };
