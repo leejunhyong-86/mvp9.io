@@ -106,7 +106,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[60%_40%]">
           {/* 왼쪽 열: 이미지 갤러리 */}
           <div className="w-full">
-            <ProductImageGallery />
+            <ProductImageGallery
+              images={product.images}
+              productName={product.name}
+            />
           </div>
 
           {/* 오른쪽 열: 상품 정보 + 장바구니 UI */}

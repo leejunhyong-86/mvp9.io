@@ -35,8 +35,9 @@ import { Input } from "@/components/ui/input";
 import { addToCart } from "@/actions/cart";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AddToCartDialog } from "@/components/add-to-cart-dialog";
 import { useCartCount } from "@/hooks/use-cart-count";
+import { toast } from "sonner";
+import { TOAST_MESSAGES } from "@/constants/toast-messages";
 
 interface AddToCartSectionProps {
   productId: string;
@@ -69,8 +70,6 @@ export function AddToCartSection({
 
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   // 재고 상태
   const isInStock = stockQuantity > 0;
@@ -83,7 +82,8 @@ export function AddToCartSection({
   const handleIncrease = () => {
     if (quantity < stockQuantity) {
       setQuantity(quantity + 1);
-      setMessage(null);
+    } else {
+      toast.error(TOAST_MESSAGES.CART.MAX_QUANTITY);
     }
   };
 
@@ -91,7 +91,6 @@ export function AddToCartSection({
   const handleDecrease = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
-      setMessage(null);
     }
   };
 
@@ -102,16 +101,17 @@ export function AddToCartSection({
       setQuantity(1);
     } else if (value > stockQuantity) {
       setQuantity(stockQuantity);
+      toast.error(TOAST_MESSAGES.CART.MAX_QUANTITY);
     } else {
       setQuantity(value);
     }
-    setMessage(null);
   };
 
   // 장바구니 추가
   const handleAddToCart = async () => {
     // 로그인 확인
     if (!isSignedIn) {
+      toast.error(TOAST_MESSAGES.COMMON.UNAUTHORIZED);
       const currentPath = window.location.pathname;
       router.push(`/sign-in?returnUrl=${encodeURIComponent(currentPath)}`);
       return;
@@ -119,12 +119,11 @@ export function AddToCartSection({
 
     // 재고 확인
     if (!isInStock || quantity > stockQuantity) {
-      setMessage("재고가 부족합니다.");
+      toast.error(TOAST_MESSAGES.CART.OUT_OF_STOCK);
       return;
     }
 
     setIsLoading(true);
-    setMessage(null);
 
     try {
       const result = await addToCart(productId, quantity);
@@ -132,16 +131,16 @@ export function AddToCartSection({
       if (result.success) {
         // 장바구니 개수 리프레시
         await refetchCartCount();
-        // Dialog 표시
-        setDialogOpen(true);
+        // Toast 알림
+        toast.success(TOAST_MESSAGES.CART.ADDED);
         // 성공 후 수량 초기화 (선택적)
         // setQuantity(1);
       } else {
-        setMessage(result.message);
+        toast.error(result.message);
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      setMessage("오류가 발생했습니다. 다시 시도해주세요.");
+      toast.error(TOAST_MESSAGES.CART.ERROR);
     } finally {
       setIsLoading(false);
     }
@@ -215,29 +214,12 @@ export function AddToCartSection({
         {isLoading ? "처리 중..." : "장바구니 담기"}
       </Button>
 
-      {/* 에러 메시지 표시 (성공 메시지는 Dialog로 대체) */}
-      {message && (
-        <div className="rounded-md bg-red-100 p-3 text-sm text-red-800 dark:bg-red-900 dark:text-red-200">
-          {message}
-        </div>
-      )}
-
       {/* 재고 부족 안내 */}
       {!isInStock && (
         <p className="text-sm text-muted-foreground">
           현재 재고가 없습니다.
         </p>
       )}
-
-      {/* 장바구니 추가 Dialog */}
-      <AddToCartDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        productName={productName}
-        quantity={quantity}
-        price={price}
-        totalCartCount={count}
-      />
     </div>
   );
 }

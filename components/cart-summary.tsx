@@ -27,6 +27,8 @@ import {
   getRemainingForFreeShipping,
 } from "@/constants/shipping";
 import type { CartItem } from "@/actions/cart";
+import { toast } from "sonner";
+import { TOAST_MESSAGES } from "@/constants/toast-messages";
 
 interface CartSummaryProps {
   items: CartItem[];
@@ -87,19 +89,19 @@ export function CartSummary({
   const handleCheckout = () => {
     // 선택된 아이템 확인
     if (selectedItems.length === 0) {
-      alert("주문할 상품을 선택해주세요.");
+      toast.error(TOAST_MESSAGES.ORDER.SELECT_ITEMS);
       return;
     }
 
     // 품절 상품 확인
     if (hasOutOfStockItems) {
-      alert("품절된 상품이 포함되어 있습니다. 해당 상품을 삭제해주세요.");
+      toast.error("품절된 상품이 포함되어 있습니다. 해당 상품을 삭제해주세요.");
       return;
     }
 
     // 재고 부족 상품 확인
     if (hasInsufficientStockItems) {
-      alert("재고가 부족한 상품이 있습니다. 수량을 조정해주세요.");
+      toast.error("재고가 부족한 상품이 있습니다. 수량을 조정해주세요.");
       return;
     }
 

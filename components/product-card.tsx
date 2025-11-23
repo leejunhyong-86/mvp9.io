@@ -21,8 +21,15 @@
  */
 
 import Link from "next/link";
+import Image from "next/image";
 import { Product } from "@/actions/products";
 import { cn } from "@/lib/utils";
+import {
+  getFirstImageOrNull,
+  hasNoImages,
+  getImageSizes,
+  getPlaceholderEmoji,
+} from "@/lib/image-utils";
 
 /**
  * 카테고리 영문명 → 한글명 매핑
@@ -61,6 +68,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
+  const firstImage = getFirstImageOrNull(product.images);
+  const noImages = hasNoImages(product.images);
+
   return (
     <Link
       href={`/products/${product.id}`}
@@ -69,11 +79,27 @@ export function ProductCard({ product, className }: ProductCardProps) {
         className
       )}
     >
-      {/* 상품 이미지 (임시 플레이스홀더) */}
+      {/* 상품 이미지 */}
       <div className="aspect-square w-full overflow-hidden rounded-t-lg bg-muted">
-        <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-          <span className="text-4xl text-muted-foreground/50">📦</span>
-        </div>
+        {noImages ? (
+          // 플레이스홀더
+          <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+            <span className="text-4xl text-muted-foreground/50">
+              {getPlaceholderEmoji()}
+            </span>
+          </div>
+        ) : (
+          // Next.js Image로 최적화된 이미지
+          <Image
+            src={firstImage!}
+            alt={product.name}
+            width={400}
+            height={400}
+            sizes={getImageSizes("card")}
+            className="h-full w-full object-cover transition-transform group-hover:scale-105"
+            priority={false}
+          />
+        )}
       </div>
 
       {/* 상품 정보 */}

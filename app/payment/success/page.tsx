@@ -29,6 +29,8 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, FileText, Home, Package } from "lucide-react";
 import Link from "next/link";
 import { formatPaymentAmount, getPaymentMethodName } from "@/lib/toss-payments";
+import { toast } from "sonner";
+import { TOAST_MESSAGES } from "@/constants/toast-messages";
 
 export default function PaymentSuccessPage() {
   const { isSignedIn, isLoaded } = useUser();
@@ -82,6 +84,7 @@ export default function PaymentSuccessPage() {
 
         if (!approvalResult.success) {
           setError(approvalResult.message);
+          toast.error(TOAST_MESSAGES.PAYMENT.FAILED);
           console.error("Payment approval failed:", approvalResult.message);
           console.groupEnd();
           setIsProcessing(false);
@@ -91,6 +94,7 @@ export default function PaymentSuccessPage() {
         // 결제 정보 저장
         if (approvalResult.payment) {
           setPayment(approvalResult.payment);
+          toast.success(TOAST_MESSAGES.PAYMENT.SUCCESS);
         }
 
         // 주문 상세 정보 조회
@@ -110,6 +114,7 @@ export default function PaymentSuccessPage() {
       } catch (err) {
         console.error("Error processing payment:", err);
         setError("결제 처리 중 오류가 발생했습니다.");
+        toast.error(TOAST_MESSAGES.PAYMENT.ERROR);
         console.groupEnd();
       } finally {
         setIsProcessing(false);

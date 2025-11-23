@@ -2,6 +2,38 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-11-23: Unsplash 상품 이미지 통합 ✅
+- **`supabase/migrations/20251123160000_update_product_images.sql`**: 마이그레이션 파일 생성
+  - 20개 상품에 대한 Unsplash 고품질 이미지 URL 업데이트
+  - 각 상품당 3-4개의 이미지 배열로 저장
+  - 카테고리별 맞춤 이미지 (전자제품, 의류, 도서, 식품, 스포츠, 뷰티, 생활/가정)
+
+- **`next.config.ts`**: 이미지 최적화 설정
+  - Unsplash 이미지 호스트 추가 (`images.unsplash.com`)
+  - Next.js Image 컴포넌트에서 Unsplash 이미지 로드 가능
+  - 기존 Clerk, Supabase Storage 호스트와 함께 설정
+
+- **이미지 데이터**:
+  - 전자제품 (5개): 블루투스 이어폰, 스마트워치, 보조배터리, 무선 마우스, USB 허브
+  - 의류 (4개): 티셔츠, 후드 자켓, 청바지, 레깅스
+  - 도서 (3개): 클린 코드, 이펙티브 타입스크립트, HTTP 완벽 가이드
+  - 식품 (3개): 원두 커피, 유기농 아몬드, 올리브 오일
+  - 스포츠 (2개): 요가 매트, 덤벨 세트
+  - 뷰티 (2개): 비타민C 세럼, 선크림
+  - 생활/가정 (1개): 디퓨저 세트
+
+**주요 기능:**
+- ✅ Unsplash API를 통한 고품질 상품 이미지 수집 (80개 이상)
+- ✅ 카테고리별 맞춤 이미지 선정
+- ✅ Next.js Image 최적화 준비 완료
+- ✅ 상품 상세 페이지 이미지 갤러리 지원
+- ✅ 썸네일 갤러리 UI 정상 동작
+
+**다음 단계:**
+- ⚠️ Supabase Dashboard에서 마이그레이션 실행 필요
+  - SQL Editor에서 `supabase/migrations/20251123160000_update_product_images.sql` 실행
+  - 또는 터미널에서 `npx supabase db push` 실행
+
 ### 2025-11-23: Phase 5 마이페이지 구현 ✅
 - **`types/order.ts`**: 타입 확장
   - OrderSortOption: 정렬 옵션 타입

@@ -32,6 +32,8 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { updateCartItemQuantity, removeCartItem } from "@/actions/cart";
 import type { CartItem } from "@/actions/cart";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { TOAST_MESSAGES } from "@/constants/toast-messages";
 
 interface CartItemProps {
   item: CartItem;
@@ -81,7 +83,6 @@ export function CartItem({
   const [quantity, setQuantity] = useState(item.quantity);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
 
   // 재고 상태
   const isInStock = product?.stock_quantity > 0;
@@ -110,20 +111,20 @@ export function CartItem({
   // 수량 업데이트
   const handleUpdateQuantity = async (newQuantity: number) => {
     setIsUpdating(true);
-    setMessage(null);
 
     try {
       const result = await updateCartItemQuantity(item.id, newQuantity);
 
       if (result.success) {
+        toast.success(TOAST_MESSAGES.CART.UPDATED);
         onUpdate();
       } else {
-        setMessage(result.message);
+        toast.error(result.message);
         setQuantity(item.quantity); // 실패 시 원래 수량으로 복구
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
-      setMessage("수량 변경 중 오류가 발생했습니다.");
+      toast.error(TOAST_MESSAGES.CART.ERROR);
       setQuantity(item.quantity);
     } finally {
       setIsUpdating(false);
@@ -134,7 +135,8 @@ export function CartItem({
   const handleIncrease = () => {
     if (quantity < product?.stock_quantity) {
       setQuantity(quantity + 1);
-      setMessage(null);
+    } else {
+      toast.error(TOAST_MESSAGES.CART.MAX_QUANTITY);
     }
   };
 
@@ -142,7 +144,6 @@ export function CartItem({
   const handleDecrease = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
-      setMessage(null);
     }
   };
 
@@ -153,10 +154,10 @@ export function CartItem({
       setQuantity(1);
     } else if (value > product?.stock_quantity) {
       setQuantity(product?.stock_quantity);
+      toast.error(TOAST_MESSAGES.CART.MAX_QUANTITY);
     } else {
       setQuantity(value);
     }
-    setMessage(null);
   };
 
   // 삭제
@@ -172,13 +173,14 @@ export function CartItem({
       const result = await removeCartItem(item.id);
 
       if (result.success) {
+        toast.success(TOAST_MESSAGES.CART.REMOVED);
         onUpdate();
       } else {
-        setMessage(result.message);
+        toast.error(result.message);
       }
     } catch (error) {
       console.error("Error deleting item:", error);
-      setMessage("삭제 중 오류가 발생했습니다.");
+      toast.error(TOAST_MESSAGES.CART.ERROR);
     } finally {
       setIsDeleting(false);
     }
@@ -249,11 +251,6 @@ export function CartItem({
           <p className="text-sm font-medium text-orange-500">
             재고 {product.stock_quantity}개 남음
           </p>
-        )}
-
-        {/* 에러 메시지 */}
-        {message && (
-          <p className="text-sm text-red-500">{message}</p>
         )}
       </div>
 

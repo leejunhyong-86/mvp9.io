@@ -23,6 +23,8 @@ import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { XCircle, ArrowLeft, RotateCcw, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
+import { TOAST_MESSAGES } from "@/constants/toast-messages";
 
 export default function PaymentFailPage() {
   const { isSignedIn, isLoaded } = useUser();
@@ -56,6 +58,13 @@ export default function PaymentFailPage() {
     setErrorCode(code);
     setErrorMessage(message);
     setOrderId(order);
+
+    // 결제 실패 토스트 표시
+    if (code === "PAY_PROCESS_CANCELED") {
+      toast.error(TOAST_MESSAGES.PAYMENT.CANCELLED);
+    } else {
+      toast.error(TOAST_MESSAGES.PAYMENT.FAILED);
+    }
   }, [searchParams]);
 
   // 사용자 친화적인 에러 메시지 생성

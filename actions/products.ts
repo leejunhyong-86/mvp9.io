@@ -43,6 +43,7 @@ export interface Product {
   category: string | null;
   stock_quantity: number;
   is_active: boolean;
+  images: string[] | null;
   created_at: string;
   updated_at: string;
 }
@@ -283,6 +284,78 @@ export async function getProductById(
     console.error("Error in getProductById:", error);
     console.groupEnd();
     throw error;
+  }
+}
+
+/**
+ * 상품 이미지 업로드 및 DB 업데이트
+ *
+ * @param productId - 상품 ID
+ * @param imageUrls - 이미지 URL 배열
+ * @returns 업데이트 결과
+ */
+export async function updateProductImages(
+  productId: string,
+  imageUrls: string[]
+): Promise<{
+  success: boolean;
+  message?: string;
+}> {
+  "use server";
+
+  try {
+    console.group("🖼️ Update Product Images");
+    console.log("Product ID:", productId);
+    console.log("Image URLs:", imageUrls);
+
+    const supabase = createPublicSupabaseClient();
+
+    // 상품 존재 여부 확인
+    const { data: product, error: fetchError } = await supabase
+      .from("products")
+      .select("id")
+      .eq("id", productId)
+      .single();
+
+    if (fetchError || !product) {
+      console.error("Product not found:", fetchError);
+      console.groupEnd();
+      return {
+        success: false,
+        message: "상품을 찾을 수 없습니다.",
+      };
+    }
+
+    // 이미지 URL 업데이트
+    const { error: updateError } = await supabase
+      .from("products")
+      .update({ images: imageUrls })
+      .eq("id", productId);
+
+    if (updateError) {
+      console.error("Update error:", updateError);
+      console.groupEnd();
+      return {
+        success: false,
+        message: updateError.message,
+      };
+    }
+
+    console.log("✅ Images updated successfully");
+    console.groupEnd();
+
+    return {
+      success: true,
+      message: "이미지가 업데이트되었습니다.",
+    };
+  } catch (error) {
+    console.error("Error in updateProductImages:", error);
+    console.groupEnd();
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "이미지 업데이트 중 오류 발생",
+    };
   }
 }
 
