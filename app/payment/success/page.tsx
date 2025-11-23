@@ -308,17 +308,12 @@ export default function PaymentSuccessPage() {
                 쇼핑 계속하기
               </Button>
             </Link>
-            {/* Phase 5에서 주문 내역 페이지 구현 예정 */}
-            <Button
-              variant="default"
-              className="flex-1"
-              size="lg"
-              disabled
-              title="Phase 5에서 구현 예정"
-            >
-              <Package className="mr-2 h-4 w-4" />
-              주문 내역 보기
-            </Button>
+            <Link href="/mypage/orders" className="flex-1">
+              <Button variant="default" className="w-full" size="lg">
+                <Package className="mr-2 h-4 w-4" />
+                주문 내역 보기
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

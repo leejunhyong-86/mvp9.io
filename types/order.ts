@@ -61,3 +61,17 @@ export interface OrderWithItems extends Order {
   items: OrderItem[];
 }
 
+/**
+ * 주문 정렬 옵션
+ */
+export type OrderSortOption = 'latest' | 'oldest' | 'price_high' | 'price_low';
+
+/**
+ * 주문 목록용 아이템 (주문 + 상품 요약)
+ */
+export interface OrderListItem extends Order {
+  firstProductName: string; // 첫 번째 상품명
+  totalProductCount: number; // 총 상품 종류 수
+  totalQuantity: number; // 총 수량
+}
+

@@ -10,4 +10,5 @@ export { SectionHeaderSkeleton } from "./section-header-skeleton";
 export { ProductsGridSkeleton } from "./products-grid-skeleton";
 export { FilterSkeleton } from "./filter-skeleton";
 export { PaginationSkeleton } from "./pagination-skeleton";
+export { OrderCardSkeleton } from "./order-card-skeleton";
 

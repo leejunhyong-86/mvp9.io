@@ -21,6 +21,14 @@ const Navbar = () => {
     router.push("/cart");
   };
 
+  const handleMyPageClick = () => {
+    if (!isSignedIn) {
+      router.push("/sign-in?returnUrl=/mypage/orders");
+      return;
+    }
+    router.push("/mypage/orders");
+  };
+
   return (
     <header className="flex justify-between items-center p-4 gap-4 h-16 max-w-7xl mx-auto">
       <Link href="/" className="text-2xl font-bold">
@@ -50,6 +58,17 @@ const Navbar = () => {
             </span>
           )}
         </Button>
+
+        {/* 마이페이지 버튼 (로그인 사용자만) */}
+        <SignedIn>
+          <Button
+            variant="outline"
+            onClick={handleMyPageClick}
+            className="gap-2"
+          >
+            My page
+          </Button>
+        </SignedIn>
 
         <SignedOut>
           <SignInButton mode="modal">

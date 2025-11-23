@@ -2,6 +2,82 @@
 
 ## 📌 최근 완료 사항
 
+### 2025-11-23: Phase 5 마이페이지 구현 ✅
+- **`types/order.ts`**: 타입 확장
+  - OrderSortOption: 정렬 옵션 타입
+  - OrderListItem: 주문 목록용 타입 (첫 번째 상품명, 총 상품 수 포함)
+
+- **`constants/orders.ts`**: 주문 관련 상수 정의 (신규 생성)
+  - ORDER_STATUS_LABELS: 상태별 한글 라벨
+  - ORDER_STATUS_COLORS: 상태별 색상
+  - ORDERS_PER_PAGE: 페이지당 주문 수 (10개)
+  - SORT_OPTIONS: 정렬 옵션 목록
+  - STATUS_FILTERS: 상태 필터 옵션
+
+- **`actions/orders.ts`**: Server Actions 확장
+  - getUserOrders(): 사용자 주문 목록 조회
+    - 상태별 필터 (all, pending, confirmed, shipped, delivered, cancelled)
+    - 정렬 옵션 (최신순, 오래된순, 금액 높은순, 금액 낮은순)
+    - 페이지네이션 (10개씩)
+    - order_items와 함께 조회하여 OrderListItem 생성
+
+- **`app/mypage/layout.tsx`**: 마이페이지 레이아웃
+  - 로그인 확인 (비로그인 시 리디렉션)
+  - 2열 레이아웃 (데스크톱: 사이드바 + 콘텐츠)
+  - 모바일: 상단 탭 메뉴
+  - 사이드바 메뉴: 주문 내역, 회원 정보(비활성), 배송지 관리(비활성)
+
+- **`components/order-card.tsx`**: 주문 카드 컴포넌트
+  - 주문 번호 (앞 8자리)
+  - 주문 날짜
+  - 주문 상태 뱃지
+  - 대표 상품명 + "외 N개"
+  - 총 결제 금액
+  - 클릭 시 상세 페이지로 이동
+
+- **`components/orders-filter.tsx`**: 주문 필터 컴포넌트
+  - 상태별 필터 탭 (개수 표시)
+  - 정렬 Select
+  - URL 동기화
+
+- **`app/mypage/orders/page.tsx`**: 주문 목록 페이지
+  - 주문 목록 조회 및 표시
+  - 상태별 필터, 정렬, 페이지네이션
+  - 빈 상태 처리
+
+- **`app/mypage/orders/loading.tsx`**: 주문 목록 로딩 UI
+  - 필터, 정렬, 카드 스켈레톤
+
+- **`app/mypage/orders/[id]/page.tsx`**: 주문 상세 페이지
+  - 주문 정보 섹션
+  - 주문 상품 목록 (상품명, 수량, 가격)
+  - 금액 요약 (상품 금액 + 배송비 = 최종 결제 금액)
+  - 배송 정보 섹션
+  - 404 처리
+
+- **`app/mypage/orders/[id]/loading.tsx`**: 주문 상세 로딩 UI
+
+- **`components/skeletons/order-card-skeleton.tsx`**: 주문 카드 스켈레톤 (신규 생성)
+
+- **`components/Navbar.tsx`**: 마이페이지 버튼 추가
+  - Package 아이콘
+  - 로그인 사용자에게만 표시 (SignedIn)
+  - 클릭 시 `/mypage/orders`로 이동
+  - 비로그인 시 로그인 페이지로 리디렉션
+
+- **`app/payment/success/page.tsx`**: 주문 내역 보기 버튼 활성화
+  - disabled 제거
+  - `/mypage/orders`로 링크 연결
+
+**주요 기능:**
+- ✅ 사용자별 주문 목록 조회
+- ✅ 상태별 필터링 (전체, 결제완료, 배송중, 배송완료, 취소됨)
+- ✅ 정렬 기능 (최신순, 오래된순, 금액순)
+- ✅ 페이지네이션
+- ✅ 주문 상세 정보 표시
+- ✅ Navbar에서 마이페이지 접근
+- ✅ 결제 성공 후 주문 내역으로 이동
+
 ### 2025-11-23: 배송정보 입력 개선 ✅
 - **`constants/validation.ts`**: 전화번호 검증 규칙 개선
   - 전화번호 하이픈 선택사항으로 변경 (`010-1234-5678` 또는 `01012345678` 모두 허용)
@@ -480,21 +556,21 @@ Supabase Dashboard → SQL Editor에서 `supabase/migrations/update_shopping_mal
 
 ## Phase 5: 마이페이지 (0.5주)
 
-- [ ] 마이페이지 레이아웃
-  - [ ] `app/mypage/layout.tsx` 레이아웃
-  - [ ] 사이드바 네비게이션
+- [x] 마이페이지 레이아웃
+  - [x] `app/mypage/layout.tsx` 레이아웃
+  - [x] 사이드바 네비게이션
 
-- [ ] 주문 내역
-  - [ ] `app/mypage/orders/page.tsx` 주문 목록 페이지
-    - [ ] 주문 목록 조회
-    - [ ] 주문 상태별 필터
-    - [ ] 주문 날짜 정렬
-  - [ ] `app/mypage/orders/[id]/page.tsx` 주문 상세 페이지
-    - [ ] 주문 정보 표시
-    - [ ] 주문 상품 목록
-    - [ ] 배송 정보
-    - [ ] 결제 정보
-  - [ ] `components/order-card.tsx` 주문 카드 컴포넌트
+- [x] 주문 내역
+  - [x] `app/mypage/orders/page.tsx` 주문 목록 페이지
+    - [x] 주문 목록 조회
+    - [x] 주문 상태별 필터
+    - [x] 주문 날짜 정렬
+  - [x] `app/mypage/orders/[id]/page.tsx` 주문 상세 페이지
+    - [x] 주문 정보 표시
+    - [x] 주문 상품 목록
+    - [x] 배송 정보
+    - [x] 결제 정보
+  - [x] `components/order-card.tsx` 주문 카드 컴포넌트
 
 ## Phase 6: 테스트 & 배포 (0.5주)
 

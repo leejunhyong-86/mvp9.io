@@ -26,8 +26,9 @@
 
 import { createClerkSupabaseClient } from "@/lib/supabase/server";
 import { auth } from "@clerk/nextjs/server";
-import type { ShippingAddress, Order, OrderItem } from "@/types/order";
+import type { ShippingAddress, Order, OrderItem, OrderListItem, OrderSortOption, OrderStatus } from "@/types/order";
 import { calculateShippingFee } from "@/constants/shipping";
+import { ORDERS_PER_PAGE } from "@/constants/orders";
 
 /**
  * 주문 생성 결과
@@ -411,3 +412,162 @@ export async function getOrderWithItems(
   }
 }
 
+/**
+ * 사용자 주문 목록 조회 결과
+ */
+export interface GetUserOrdersResult {
+  success: boolean;
+  message?: string;
+  orders?: OrderListItem[];
+  totalCount?: number;
+}
+
+/**
+ * 사용자 주문 목록 조회
+ * 
+ * @param options - 필터 및 정렬 옵션
+ * @returns 주문 목록 및 총 개수
+ */
+export async function getUserOrders(options: {
+  status?: OrderStatus | 'all';
+  sort?: OrderSortOption;
+  page?: number;
+}): Promise<GetUserOrdersResult> {
+  try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return {
+        success: false,
+        message: "로그인이 필요합니다.",
+      };
+    }
+
+    const {
+      status = 'all',
+      sort = 'latest',
+      page = 1,
+    } = options;
+
+    console.group("getUserOrders");
+    console.log("User ID:", userId);
+    console.log("Options:", options);
+
+    const supabase = createClerkSupabaseClient();
+    const from = (page - 1) * ORDERS_PER_PAGE;
+    const to = from + ORDERS_PER_PAGE - 1;
+
+    // 기본 쿼리: 사용자의 주문 조회
+    let query = supabase
+      .from("orders")
+      .select("*", { count: "exact" })
+      .eq("clerk_id", userId);
+
+    // 상태별 필터 적용
+    if (status !== 'all') {
+      query = query.eq("status", status);
+    }
+
+    // 정렬 옵션 적용
+    switch (sort) {
+      case 'latest':
+        query = query.order("created_at", { ascending: false });
+        break;
+      case 'oldest':
+        query = query.order("created_at", { ascending: true });
+        break;
+      case 'price_high':
+        query = query.order("total_amount", { ascending: false });
+        break;
+      case 'price_low':
+        query = query.order("total_amount", { ascending: true });
+        break;
+      default:
+        query = query.order("created_at", { ascending: false });
+    }
+
+    // 페이지네이션 적용
+    query = query.range(from, to);
+
+    const { data: orders, error: ordersError, count } = await query;
+
+    if (ordersError) {
+      console.error("Error fetching orders:", ordersError);
+      console.groupEnd();
+      return {
+        success: false,
+        message: "주문 목록 조회 중 오류가 발생했습니다.",
+      };
+    }
+
+    console.log("Orders fetched:", orders?.length || 0);
+    console.log("Total count:", count || 0);
+
+    // 주문이 없는 경우
+    if (!orders || orders.length === 0) {
+      console.groupEnd();
+      return {
+        success: true,
+        orders: [],
+        totalCount: 0,
+      };
+    }
+
+    // 각 주문에 대한 order_items 조회
+    const orderIds = orders.map(order => order.id);
+    const { data: orderItems, error: itemsError } = await supabase
+      .from("order_items")
+      .select("*")
+      .in("order_id", orderIds);
+
+    if (itemsError) {
+      console.error("Error fetching order items:", itemsError);
+      console.groupEnd();
+      return {
+        success: false,
+        message: "주문 상품 조회 중 오류가 발생했습니다.",
+      };
+    }
+
+    console.log("Order items fetched:", orderItems?.length || 0);
+
+    // 주문별로 order_items 그룹핑
+    const itemsByOrderId = (orderItems || []).reduce((acc, item) => {
+      if (!acc[item.order_id]) {
+        acc[item.order_id] = [];
+      }
+      acc[item.order_id].push(item);
+      return acc;
+    }, {} as Record<string, typeof orderItems>);
+
+    // OrderListItem 생성
+    const orderListItems: OrderListItem[] = orders.map((order) => {
+      const items = itemsByOrderId[order.id] || [];
+      const firstItem = items[0];
+      const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+
+      return {
+        ...order,
+        firstProductName: firstItem?.product_name || "상품",
+        totalProductCount: items.length,
+        totalQuantity,
+      } as OrderListItem;
+    });
+
+    console.log("Order list items created:", orderListItems.length);
+    console.groupEnd();
+
+    return {
+      success: true,
+      orders: orderListItems,
+      totalCount: count || 0,
+    };
+  } catch (error) {
+    console.error("Error in getUserOrders:", error);
+    console.groupEnd();
+    return {
+      success: false,
+      message: "예기치 않은 오류가 발생했습니다.",
+    };
+  }
+}
