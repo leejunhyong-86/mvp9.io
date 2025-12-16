@@ -23,6 +23,9 @@ import { getProducts, getPopularProducts } from "@/actions/products";
 import { PopularProductsSection } from "@/components/popular-products-section";
 import { ProductsSection } from "@/components/products-section";
 
+// 동적 렌더링 강제 (빌드 타임 에러 방지)
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   // Server Component에서 병렬로 데이터 조회
   const [popularProducts, allProducts] = await Promise.all([

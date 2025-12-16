@@ -24,8 +24,9 @@
 2. [기술 스택](#기술-스택)
 3. [주요 기능](#주요-기능)
 4. [시작하기](#시작하기)
-5. [추가 설정 및 팁](#추가-설정-및-팁)
-6. [프로젝트 구조](#프로젝트-구조)
+5. [Vercel 배포](#vercel-배포)
+6. [추가 설정 및 팁](#추가-설정-및-팁)
+7. [프로젝트 구조](#프로젝트-구조)
 
 ## 소개
 
@@ -302,6 +303,23 @@ pnpm start
 pnpm lint
 ```
 
+## Vercel 배포
+
+프로젝트를 Vercel에 배포하려면 [VERCEL_SETUP.md](./VERCEL_SETUP.md) 가이드를 참고하세요.
+
+### 🚨 중요: 환경 변수 설정 필수
+
+Vercel 배포 시 **"Application error: a server-side exception has occurred"** 에러가 발생하는 경우, 대부분 환경 변수가 설정되지 않아서입니다.
+
+**필수 환경 변수:**
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+
+자세한 배포 방법은 [VERCEL_SETUP.md](./VERCEL_SETUP.md)를 확인하세요.
+
 ## 추가 설정 및 팁
 
 ### Clerk 한국어 설정
@@ -408,5 +426,6 @@ saas-template/
 - [Supabase 문서](https://supabase.com/docs)
 - [shadcn/ui 문서](https://ui.shadcn.com/)
 - [Tailwind CSS v4 문서](https://tailwindcss.com/docs)
-#   m v p 9 . i o  
+#   m v p 9 . i o 
+ 
  

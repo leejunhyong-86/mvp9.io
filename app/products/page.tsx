@@ -27,6 +27,9 @@ import { ProductsFilter } from "@/components/products-filter";
 import { ProductsGrid } from "@/components/products-grid";
 import { Pagination } from "@/components/pagination";
 
+// 동적 렌더링 강제 (빌드 타임 에러 방지)
+export const dynamic = "force-dynamic";
+
 interface ProductsPageProps {
   searchParams: Promise<{
     page?: string;

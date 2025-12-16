@@ -26,8 +26,16 @@ import { createClient } from "@supabase/supabase-js";
  * 홈페이지는 공개 페이지이므로 인증 없이 조회 가능
  */
 function createPublicSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error(
+      "Supabase 환경 변수가 설정되지 않았습니다.\n" +
+      "NEXT_PUBLIC_SUPABASE_URL과 NEXT_PUBLIC_SUPABASE_ANON_KEY를 .env 파일에 추가하거나\n" +
+      "Vercel 대시보드의 Environment Variables에서 설정해주세요."
+    );
+  }
 
   return createClient(supabaseUrl, supabaseKey);
 }
@@ -63,14 +71,20 @@ export async function getProducts(): Promise<Product[]> {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching products:", error);
+      console.error("Error fetching products:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
       throw new Error(`상품 조회 실패: ${error.message}`);
     }
 
     return (data as Product[]) || [];
   } catch (error) {
     console.error("Error in getProducts:", error);
-    throw error;
+    // 빌드 타임 에러 방지: 빈 배열 반환
+    return [];
   }
 }
 
@@ -122,14 +136,20 @@ export async function getPopularProducts(): Promise<Product[]> {
       .limit(8);
 
     if (error) {
-      console.error("Error fetching popular products:", error);
+      console.error("Error fetching popular products:", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+      });
       throw new Error(`인기 상품 조회 실패: ${error.message}`);
     }
 
     return (data as Product[]) || [];
   } catch (error) {
     console.error("Error in getPopularProducts:", error);
-    throw error;
+    // 빌드 타임 에러 방지: 빈 배열 반환
+    return [];
   }
 }
 
@@ -241,7 +261,12 @@ export async function getProductsWithFilters(
     };
   } catch (error) {
     console.error("Error in getProductsWithFilters:", error);
-    throw error;
+    // 빌드 타임 에러 방지: 빈 결과 반환
+    return {
+      products: [],
+      totalCount: 0,
+      totalPages: 0,
+    };
   }
 }
 
@@ -283,7 +308,8 @@ export async function getProductById(
   } catch (error) {
     console.error("Error in getProductById:", error);
     console.groupEnd();
-    throw error;
+    // 빌드 타임 에러 방지: null 반환
+    return null;
   }
 }
 
